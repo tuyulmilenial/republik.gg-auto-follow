@@ -49,11 +49,11 @@ const follow = async (token, id) => {
 
 const main = async () => {
   const token = "";
-  const userId = "50336e22-bd73-48f6-bd53-5850fa60f1c4";
+  const userId = "";
   const delay = (ms) => new Promise((res) => setTimeout(res, ms));
   console.log(`Grabbing following...`);
 
-  const listUser = [];
+  let i = 0;
   let lastKey = "";
 
   do {
@@ -68,27 +68,19 @@ const main = async () => {
       break;
     }
 
-    getFollowing.users.map((user) => {
-      if (user.followStatus != "NONE") return;
-      listUser.push(user);
-    });
-  } while (lastKey !== "");
-
-  console.log(`Total Following : ${listUser.length}`);
-  console.log(`Do follow...`);
-
-  const following = _.chunk(listUser, 10);
-  for (let i = 0; i < following.length; i++) {
     await Promise.all(
-      following[i].map(async (user) => {
+      getFollowing.users.map(async (user) => {
+        if (user.followStatus != "NONE") return;
         const doFollow = await follow(token, user.id);
         if (doFollow.followStatus) {
           console.log(
-            `[${user.id}] ${user.displayName} (@${user.username}) | Status : ${doFollow.followStatus}`
+            `[${i++}] [${user.id}] ${user.displayName} (@${
+              user.username
+            }) | Status : ${doFollow.followStatus}`
           );
         } else {
           console.log(
-            `[${user.id}] ${user.displayName} (@${
+            `[${i++}] [${user.id}] ${user.displayName} (@${
               user.username
             }) | Status : ${JSON.stringify(doFollow)}`
           );
@@ -96,7 +88,7 @@ const main = async () => {
       })
     );
     await delay(1500);
-  }
+  } while (lastKey !== "");
 };
 
 main();
